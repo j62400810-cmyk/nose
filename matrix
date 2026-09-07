@@ -1,6 +1,9 @@
 -- ============================================================
--- MATRIX UI - ESTILO FANTASMITAM HUB (COMPLETO)
--- CON BOTÓN X PARA CERRAR EL SCRIPT
+-- MATRIX UI - VERSIÓN COMPLETA CON mainFrame
+-- PESTAÑAS: COMBATE | SORU | APPEARANCE | MISC
+-- TODOS LOS BOTONES FLOTANTES ARRASTRABLES
+-- UI PRINCIPAL FIJA (SIN ARRASTRE)
+-- FONDO NEGRO SÓLIDO - POSICIÓN CORRECTA
 -- ============================================================
 local player = game:GetService("Players").LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -10,7 +13,6 @@ local RunService = game:GetService("RunService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
-local TweenService = game:GetService("TweenService")
 
 -- ============================================================
 -- VARIABLES GLOBALES
@@ -55,13 +57,6 @@ _G.GhostAttack = false
 _G.FPSPingOverlayEnabled = false
 _G.currentFPS = 0
 _G.currentPing = 0
-
--- ============================================================
--- REMOTES
--- ============================================================
-local commF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
-local commE = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommE")
-local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
 
 -- ============================================================
 -- FUNCIÓN DE ARRASTRE PARA BOTONES FLOTANTES
@@ -112,6 +107,13 @@ local function MakeDraggableAndClickable(guiObject, onClickCallback)
         end
     end)
 end
+
+-- ============================================================
+-- REMOTES
+-- ============================================================
+local commF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
+local commE = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommE")
+local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
 
 -- ============================================================
 -- SILENT AIM
@@ -1195,237 +1197,164 @@ function DestroyDragonM1FloatingButton()
 end
 
 -- ============================================================
--- UI PRINCIPAL - ESTILO FANTASMITAM HUB
+-- UI PRINCIPAL - mainFrame (AGREGADO)
 -- ============================================================
+local mainGui = Instance.new("ScreenGui")
+mainGui.Name = "MatrixUI"
+mainGui.ResetOnSpawn = false
+mainGui.Parent = playerGui
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "MatrixUI"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = playerGui
-
--- BOTÓN X PARA CERRAR TODO
-local closeScriptBtn = Instance.new("TextButton")
-closeScriptBtn.Name = "CloseScriptBtn"
-closeScriptBtn.Size = UDim2.new(0, 30, 0, 30)
-closeScriptBtn.Position = UDim2.new(0.85, 0, 0, 0)
-closeScriptBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-closeScriptBtn.Text = "✕"
-closeScriptBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeScriptBtn.TextSize = 16
-closeScriptBtn.Font = Enum.Font.GothamBold
-closeScriptBtn.Active = true
-closeScriptBtn.Draggable = false
-closeScriptBtn.Visible = true
-closeScriptBtn.Parent = screenGui
-Instance.new("UICorner", closeScriptBtn).CornerRadius = UDim.new(1, 0)
-
-local closeStroke = Instance.new("UIStroke")
-closeStroke.Color = Color3.fromRGB(255, 255, 255)
-closeStroke.Thickness = 2
-closeStroke.Parent = closeScriptBtn
-
-closeScriptBtn.MouseButton1Click:Connect(function()
-    -- Destruir TODAS las GUIs del script
-    for _, gui in pairs(playerGui:GetChildren()) do
-        if gui.Name == "MatrixUI" or 
-           gui.Name == "MatrixOpenButton" or
-           gui.Name == "SilentAim_Floating" or
-           gui.Name == "DragonM1_Floating" or
-           gui.Name == "SuperJump_Floating" or
-           gui.Name == "Matrix_FPSOverlay" then
-            gui:Destroy()
-        end
-    end
-    print("✅ MATRIX UI CERRADA COMPLETAMENTE")
-end)
-
--- BOTÓN FLOTANTE PRINCIPAL (CON IMAGEN)
-local toggleBtn = Instance.new("ImageButton")
-toggleBtn.Name = "MatrixButton"
-toggleBtn.Size = UDim2.new(0, 45, 0, 45)
-toggleBtn.Position = UDim2.new(0, 10, 0, 10)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Image = "rbxassetid://122805690990383"
-toggleBtn.Active = true
-toggleBtn.Draggable = true
-toggleBtn.Parent = screenGui
-Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1, 0)
-
-local floatStroke = Instance.new("UIStroke")
-floatStroke.Color = Color3.fromRGB(150, 0, 255)
-floatStroke.Thickness = 2
-floatStroke.Parent = toggleBtn
-
--- PANEL PRINCIPAL
 local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 190, 0, 360)
-mainFrame.Position = UDim2.new(0, -200, 0, 10)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
-mainFrame.BorderSizePixel = 0
+mainFrame.Size = UDim2.new(0, 400, 0, 420)
+mainFrame.Position = UDim2.new(0.5, -200, 0, 0) 
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.Active = false
+mainFrame.Draggable = false
 mainFrame.Visible = false
-mainFrame.Parent = screenGui
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+mainFrame.Parent = mainGui
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
 
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, 0, 0, 25)
-titleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
-titleLabel.Text = "⚡ MATRIX"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.TextSize = 10
-titleLabel.Font = Enum.Font.GothamBold
-titleLabel.Parent = mainFrame
-Instance.new("UICorner", titleLabel).CornerRadius = UDim.new(0, 10)
+-- ============================================================
+-- TÍTULO
+-- ============================================================
+local title = Instance.new("TextLabel", mainFrame)
+title.Size = UDim2.new(1, 0, 0, 35)
+title.Position = UDim2.new(0, 15, 0, 0)
+title.Text = "MATRIX"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.BackgroundTransparency = 1
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.ZIndex = 2
 
-local timerLabel = Instance.new("TextLabel")
-timerLabel.Size = UDim2.new(1, 0, 0, 16)
-timerLabel.Position = UDim2.new(0, 0, 0, 25)
-timerLabel.BackgroundTransparency = 1
-timerLabel.Text = "⏱️ Tiempo: 00:00:00"
-timerLabel.TextColor3 = Color3.fromRGB(180, 180, 210)
-timerLabel.TextSize = 9
-timerLabel.Font = Enum.Font.GothamMedium
-timerLabel.Parent = mainFrame
-
-local startTime = os.time()
-task.spawn(function()
-	while task.wait(1) do
-		local elapsed = os.time() - startTime
-		local hours = math.floor(elapsed / 3600)
-		local mins = math.floor((elapsed % 3600) / 60)
-		local secs = elapsed % 60
-		timerLabel.Text = string.format("⏱️ Tiempo: %02d:%02d:%02d", hours, mins, secs)
-	end
+local closeBtn = Instance.new("TextButton", mainFrame)
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 3)
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 16
+closeBtn.BackgroundTransparency = 1
+closeBtn.ZIndex = 2
+closeBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
 end)
 
--- SCROLLING FRAME CON PESTAÑAS
-local mainScroll = Instance.new("ScrollingFrame")
-mainScroll.Size = UDim2.new(1, 0, 1, -45)
-mainScroll.Position = UDim2.new(0, 0, 0, 42)
-mainScroll.BackgroundTransparency = 1
-mainScroll.BorderSizePixel = 0
-mainScroll.ScrollBarThickness = 4
-mainScroll.CanvasSize = UDim2.new(0, 0, 0, 320)
-mainScroll.Parent = mainFrame
+closeBtn.TouchTap:Connect(function()
+    mainFrame.Visible = false
+end)
 
-local mainLayout = Instance.new("UIListLayout")
-mainLayout.Padding = UDim.new(0, 6)
-mainLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-mainLayout.Parent = mainScroll
-
-Instance.new("UIPadding", mainScroll).PaddingTop = UDim.new(0, 4)
-
--- BOTONES DE PESTAÑAS
-local combatBtn = Instance.new("TextButton")
-combatBtn.Size = UDim2.new(0.9, 0, 0, 20)
-combatBtn.BackgroundColor3 = Color3.fromRGB(200, 30, 60)
-combatBtn.Text = "⚔️ COMBATE"
-combatBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-combatBtn.TextSize = 9
-combatBtn.Font = Enum.Font.GothamBold
-combatBtn.Parent = mainScroll
-Instance.new("UICorner", combatBtn).CornerRadius = UDim.new(0, 4)
-
-local soruBtn = Instance.new("TextButton")
-soruBtn.Size = UDim2.new(0.9, 0, 0, 20)
-soruBtn.BackgroundColor3 = Color3.fromRGB(80, 40, 180)
-soruBtn.Text = "⚡ SORU"
-soruBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-soruBtn.TextSize = 9
-soruBtn.Font = Enum.Font.GothamBold
-soruBtn.Parent = mainScroll
-Instance.new("UICorner", soruBtn).CornerRadius = UDim.new(0, 4)
-
-local appearanceBtn = Instance.new("TextButton")
-appearanceBtn.Size = UDim2.new(0.9, 0, 0, 20)
-appearanceBtn.BackgroundColor3 = Color3.fromRGB(130, 30, 210)
-appearanceBtn.Text = "🎨 APPEARANCE"
-appearanceBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-appearanceBtn.TextSize = 9
-appearanceBtn.Font = Enum.Font.GothamBold
-appearanceBtn.Parent = mainScroll
-Instance.new("UICorner", appearanceBtn).CornerRadius = UDim.new(0, 4)
-
-local miscBtn = Instance.new("TextButton")
-miscBtn.Size = UDim2.new(0.9, 0, 0, 20)
-miscBtn.BackgroundColor3 = Color3.fromRGB(0, 140, 220)
-miscBtn.Text = "🎲 MISC"
-miscBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-miscBtn.TextSize = 9
-miscBtn.Font = Enum.Font.GothamBold
-miscBtn.Parent = mainScroll
-Instance.new("UICorner", miscBtn).CornerRadius = UDim.new(0, 4)
+local sep = Instance.new("Frame", mainFrame)
+sep.Size = UDim2.new(1, -20, 0, 1)
+sep.Position = UDim2.new(0, 10, 0, 38)
+sep.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+sep.BackgroundTransparency = 0.5
+sep.BorderSizePixel = 0
+sep.ZIndex = 2
 
 -- ============================================================
--- PANELES DE CONTENIDO
+-- PESTAÑAS IZQUIERDAS
 -- ============================================================
+local sidebar = Instance.new("Frame", mainFrame)
+sidebar.Size = UDim2.new(0, 85, 1, -50)
+sidebar.Position = UDim2.new(0, 5, 0, 45)
+sidebar.BackgroundTransparency = 1
+sidebar.ZIndex = 2
 
--- PANEL COMBATE
-local combatFrame = Instance.new("Frame")
-combatFrame.Name = "CombatFrame"
-combatFrame.Size = UDim2.new(0, 210, 0, 360)
-combatFrame.Position = UDim2.new(0, -220, 0, 10)
-combatFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-combatFrame.BorderSizePixel = 0
-combatFrame.Visible = false
-combatFrame.Parent = screenGui
-Instance.new("UICorner", combatFrame).CornerRadius = UDim.new(0, 10)
+local btnCombate = Instance.new("TextButton", sidebar)
+btnCombate.Size = UDim2.new(1, -5, 0, 28)
+btnCombate.Position = UDim2.new(0, 2, 0, 5)
+btnCombate.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+btnCombate.BackgroundTransparency = 0.2
+btnCombate.Text = "COMBATE"
+btnCombate.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnCombate.Font = Enum.Font.GothamBold
+btnCombate.TextSize = 9
+btnCombate.ZIndex = 2
+Instance.new("UICorner", btnCombate).CornerRadius = UDim.new(0, 6)
 
-local combatTitle = Instance.new("TextLabel")
-combatTitle.Size = UDim2.new(1, 0, 0, 25)
-combatTitle.BackgroundColor3 = Color3.fromRGB(200, 30, 60)
-combatTitle.Text = "⚔️ COMBATE"
-combatTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-combatTitle.TextSize = 10
-combatTitle.Font = Enum.Font.GothamBold
-combatTitle.Parent = combatFrame
-Instance.new("UICorner", combatTitle).CornerRadius = UDim.new(0, 10)
+local btnSoru = Instance.new("TextButton", sidebar)
+btnSoru.Size = UDim2.new(1, -5, 0, 28)
+btnSoru.Position = UDim2.new(0, 2, 0, 37)
+btnSoru.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+btnSoru.BackgroundTransparency = 0.2
+btnSoru.Text = "SORU"
+btnSoru.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnSoru.Font = Enum.Font.GothamBold
+btnSoru.TextSize = 9
+btnSoru.ZIndex = 2
+Instance.new("UICorner", btnSoru).CornerRadius = UDim.new(0, 6)
 
-local combatScroll = Instance.new("ScrollingFrame")
-combatScroll.Size = UDim2.new(1, 0, 1, -30)
-combatScroll.Position = UDim2.new(0, 0, 0, 30)
-combatScroll.BackgroundTransparency = 1
-combatScroll.BorderSizePixel = 0
-combatScroll.ScrollBarThickness = 4
-combatScroll.ScrollBarImageColor3 = Color3.fromRGB(200, 30, 60)
-combatScroll.CanvasSize = UDim2.new(0, 0, 0, 280)
-combatScroll.Parent = combatFrame
+local btnAppearance = Instance.new("TextButton", sidebar)
+btnAppearance.Size = UDim2.new(1, -5, 0, 28)
+btnAppearance.Position = UDim2.new(0, 2, 0, 69)
+btnAppearance.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+btnAppearance.BackgroundTransparency = 0.2
+btnAppearance.Text = "APPEARANCE"
+btnAppearance.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnAppearance.Font = Enum.Font.GothamBold
+btnAppearance.TextSize = 9
+btnAppearance.ZIndex = 2
+Instance.new("UICorner", btnAppearance).CornerRadius = UDim.new(0, 6)
 
-local combatLayout = Instance.new("UIListLayout")
-combatLayout.Padding = UDim.new(0, 6)
-combatLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-combatLayout.Parent = combatScroll
+local btnMisc = Instance.new("TextButton", sidebar)
+btnMisc.Size = UDim2.new(1, -5, 0, 28)
+btnMisc.Position = UDim2.new(0, 2, 0, 101)
+btnMisc.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+btnMisc.BackgroundTransparency = 0.2
+btnMisc.Text = "MISC"
+btnMisc.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnMisc.Font = Enum.Font.GothamBold
+btnMisc.TextSize = 9
+btnMisc.ZIndex = 2
+Instance.new("UICorner", btnMisc).CornerRadius = UDim.new(0, 6)
 
-Instance.new("UIPadding", combatScroll).PaddingTop = UDim.new(0, 6)
+-- ============================================================
+-- PANEL DERECHO (CONTENIDO)
+-- ============================================================
+local rightPanel = Instance.new("Frame", mainFrame)
+rightPanel.Size = UDim2.new(1, -100, 1, -50)
+rightPanel.Position = UDim2.new(0, 92, 0, 45)
+rightPanel.BackgroundTransparency = 1
+rightPanel.ZIndex = 2
 
--- TOGGLES DE COMBATE
-local function createCombatToggle(labelText, getter, setter, yPos)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.9, 0, 0, 20)
-    frame.Position = UDim2.new(0.05, 0, 0, yPos)
+local content = Instance.new("ScrollingFrame", rightPanel)
+content.Size = UDim2.new(1, 0, 1, 0)
+content.BackgroundTransparency = 1
+content.ScrollBarThickness = 3
+content.AutomaticCanvasSize = Enum.AutomaticSize.Y
+content.CanvasSize = UDim2.new(0, 0, 0, 0)
+content.ZIndex = 2
+Instance.new("UIListLayout", content).Padding = UDim.new(0, 5)
+
+-- ============================================================
+-- FUNCIÓN TOGGLE
+-- ============================================================
+local function createToggle(parent, labelText, getter, setter, yPos)
+    local frame = Instance.new("Frame", parent)
+    frame.Size = UDim2.new(1, 0, 0, 28)
+    frame.Position = UDim2.new(0, 0, 0, yPos or 0)
     frame.BackgroundTransparency = 1
-    frame.Parent = combatScroll
 
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0.6, 0, 1, 0)
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(0.65, 0, 1, 0)
     label.Text = labelText
     label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextSize = 9
     label.Font = Enum.Font.GothamBold
+    label.TextSize = 9
     label.BackgroundTransparency = 1
     label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = frame
 
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 40, 0, 18)
-    btn.Position = UDim2.new(0.75, 0, 0.5, -9)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+    local btn = Instance.new("TextButton", frame)
+    btn.Size = UDim2.new(0, 45, 0, 20)
+    btn.Position = UDim2.new(1, -48, 0.5, -10)
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    btn.BackgroundTransparency = 0.2
     btn.Text = "OFF"
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.TextSize = 8
     btn.Font = Enum.Font.GothamBold
-    btn.Parent = frame
+    btn.TextSize = 8
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 
     local function updateToggle()
@@ -1433,7 +1362,7 @@ local function createCombatToggle(labelText, getter, setter, yPos)
             btn.BackgroundColor3 = Color3.fromRGB(0, 200, 80)
             btn.Text = "ON"
         else
-            btn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+            btn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
             btn.Text = "OFF"
         end
     end
@@ -1452,180 +1381,96 @@ local function createCombatToggle(labelText, getter, setter, yPos)
     return btn
 end
 
-createCombatToggle("Target Players", 
+-- ============================================================
+-- CONTENIDO COMBATE
+-- ============================================================
+local combatContent = Instance.new("Frame", content)
+combatContent.Size = UDim2.new(1, 0, 0, 160)
+combatContent.BackgroundTransparency = 1
+combatContent.ZIndex = 2
+
+createToggle(combatContent, "Target Players", 
     function() return _G.G_SilentAimTargetPlayers end,
-    function(v) _G.G_SilentAimTargetPlayers = v; SilentAimPlayersEnabled = v end, 6
+    function(v) _G.G_SilentAimTargetPlayers = v; SilentAimPlayersEnabled = v end, 0
 )
 
-createCombatToggle("Target NPCs",
+createToggle(combatContent, "Target NPCs",
     function() return _G.G_SilentAimTargetMobs end,
     function(v) _G.G_SilentAimTargetMobs = v; SilentAimNPCsEnabled = v end, 30
 )
 
-createCombatToggle("Silent AIM",
+local sep2 = Instance.new("Frame", combatContent)
+sep2.Size = UDim2.new(1, 0, 0, 1)
+sep2.Position = UDim2.new(0, 0, 0, 62)
+sep2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+sep2.BackgroundTransparency = 0.5
+sep2.BorderSizePixel = 0
+
+createToggle(combatContent, "Silent AIM",
     function() return _G.G_SilentAimSkill end,
     function(v)
         _G.G_SilentAimSkill = v
         if v then CreateSilentAimFloatingButton() else DestroySilentAimFloatingButton() end
-    end, 54
+    end, 68
 )
 
-createCombatToggle("Auto M1",
+createToggle(combatContent, "Auto M1",
     function() return _G.G_DragonGunM1 end,
     function(v)
         _G.G_DragonGunM1 = v
         if v then CreateDragonM1FloatingButton() else DestroyDragonM1FloatingButton() end
-    end, 78
+    end, 98
 )
 
-createCombatToggle("⬆️ Jump Button",
+createToggle(combatContent, "⬆️ Jump Button",
     function() return _G.SuperJumpActive end,
     function(v)
         _G.SuperJumpActive = v
         if v then CreateJumpFloatingButton() else DestroyJumpFloatingButton() end
-    end, 102
+    end, 128
 )
 
--- PANEL SORU
-local soruFrame = Instance.new("Frame")
-soruFrame.Name = "SoruFrame"
-soruFrame.Size = UDim2.new(0, 210, 0, 360)
-soruFrame.Position = UDim2.new(0, -220, 0, 10)
-soruFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-soruFrame.BorderSizePixel = 0
-soruFrame.Visible = false
-soruFrame.Parent = screenGui
-Instance.new("UICorner", soruFrame).CornerRadius = UDim.new(0, 10)
+-- ============================================================
+-- CONTENIDO SORU
+-- ============================================================
+local soruContent = Instance.new("Frame", content)
+soruContent.Size = UDim2.new(1, 0, 0, 160)
+soruContent.BackgroundTransparency = 1
+soruContent.Visible = false
+soruContent.ZIndex = 2
 
-local soruTitle = Instance.new("TextLabel")
-soruTitle.Size = UDim2.new(1, 0, 0, 25)
-soruTitle.BackgroundColor3 = Color3.fromRGB(80, 40, 180)
-soruTitle.Text = "⚡ SORU"
-soruTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-soruTitle.TextSize = 10
-soruTitle.Font = Enum.Font.GothamBold
-soruTitle.Parent = soruFrame
-Instance.new("UICorner", soruTitle).CornerRadius = UDim.new(0, 10)
-
-local soruScroll = Instance.new("ScrollingFrame")
-soruScroll.Size = UDim2.new(1, 0, 1, -30)
-soruScroll.Position = UDim2.new(0, 0, 0, 30)
-soruScroll.BackgroundTransparency = 1
-soruScroll.BorderSizePixel = 0
-soruScroll.ScrollBarThickness = 4
-soruScroll.ScrollBarImageColor3 = Color3.fromRGB(80, 40, 180)
-soruScroll.CanvasSize = UDim2.new(0, 0, 0, 230)
-soruScroll.Parent = soruFrame
-
-local soruLayout = Instance.new("UIListLayout")
-soruLayout.Padding = UDim.new(0, 6)
-soruLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-soruLayout.Parent = soruScroll
-
-Instance.new("UIPadding", soruScroll).PaddingTop = UDim.new(0, 6)
-
--- TOGGLES DE SORU
-local function createSoruToggle(labelText, getter, setter, yPos)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.9, 0, 0, 20)
-    frame.Position = UDim2.new(0.05, 0, 0, yPos)
-    frame.BackgroundTransparency = 1
-    frame.Parent = soruScroll
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0.6, 0, 1, 0)
-    label.Text = labelText
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextSize = 9
-    label.Font = Enum.Font.GothamBold
-    label.BackgroundTransparency = 1
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = frame
-
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 40, 0, 18)
-    btn.Position = UDim2.new(0.75, 0, 0.5, -9)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-    btn.Text = "OFF"
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.TextSize = 8
-    btn.Font = Enum.Font.GothamBold
-    btn.Parent = frame
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-
-    local function updateToggle()
-        if getter() then
-            btn.BackgroundColor3 = Color3.fromRGB(0, 200, 80)
-            btn.Text = "ON"
-        else
-            btn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-            btn.Text = "OFF"
-        end
-    end
-
-    btn.MouseButton1Click:Connect(function()
-        setter(not getter())
-        updateToggle()
-    end)
-
-    btn.TouchTap:Connect(function()
-        setter(not getter())
-        updateToggle()
-    end)
-
-    updateToggle()
-    return btn
-end
-
-createSoruToggle("♾️ Soru Infinito",
+createToggle(soruContent, "♾️ Soru Infinito",
     function() return _G.SoruInfinitoEnabled end,
     function(v)
         _G.SoruInfinitoEnabled = v
         if player.Character then enforceSoru(player.Character) end
-    end, 6
+    end, 0
 )
 
-createSoruToggle("🎯 Soru Aimbot (TP)",
+createToggle(soruContent, "🎯 Soru Aimbot (TP)",
     function() return _G.SoruAimbotEnabled end,
     function(v) 
         _G.SoruAimbotEnabled = v 
     end, 30
 )
 
-createSoruToggle("🌀 Portal Soru X+Z",
+createToggle(soruContent, "🌀 Portal Soru X+Z",
     function() return _G.PortalSoruEnabled end,
-    function(v) _G.PortalSoruEnabled = v end, 54
+    function(v) _G.PortalSoruEnabled = v end, 60
 )
 
--- Selector de Target
-local targetFrame = Instance.new("Frame")
-targetFrame.Size = UDim2.new(0.9, 0, 0, 20)
-targetFrame.Position = UDim2.new(0.05, 0, 0, 78)
-targetFrame.BackgroundTransparency = 1
-targetFrame.Parent = soruScroll
+local soruTargetBtn = Instance.new("TextButton", soruContent)
+soruTargetBtn.Size = UDim2.new(1, 0, 0, 24)
+soruTargetBtn.Position = UDim2.new(0, 0, 0, 92)
+soruTargetBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+soruTargetBtn.BackgroundTransparency = 0.2
+soruTargetBtn.Text = "🎯 Target: Nearest"
+soruTargetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+soruTargetBtn.TextSize = 9
+soruTargetBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", soruTargetBtn).CornerRadius = UDim.new(0, 4)
 
-local targetLabel = Instance.new("TextLabel")
-targetLabel.Size = UDim2.new(0.6, 0, 1, 0)
-targetLabel.Text = "🎯 Target:"
-targetLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-targetLabel.TextSize = 9
-targetLabel.Font = Enum.Font.GothamBold
-targetLabel.BackgroundTransparency = 1
-targetLabel.TextXAlignment = Enum.TextXAlignment.Left
-targetLabel.Parent = targetFrame
-
-local targetBtn = Instance.new("TextButton")
-targetBtn.Size = UDim2.new(0, 60, 0, 18)
-targetBtn.Position = UDim2.new(0.65, 0, 0.5, -9)
-targetBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-targetBtn.Text = "Nearest"
-targetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-targetBtn.TextSize = 8
-targetBtn.Font = Enum.Font.GothamBold
-targetBtn.Parent = targetFrame
-Instance.new("UICorner", targetBtn).CornerRadius = UDim.new(0, 4)
-
-targetBtn.MouseButton1Click:Connect(function()
+soruTargetBtn.MouseButton1Click:Connect(function()
     local plist = {"Nearest"}
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= player then table.insert(plist, p.Name) end
@@ -1634,109 +1479,27 @@ targetBtn.MouseButton1Click:Connect(function()
     local currIdx = table.find(plist, currentName) or 1
     local nextIdx = (currIdx % #plist) + 1
     _G.SelectedSoruTarget = plist[nextIdx]
-    targetBtn.Text = plist[nextIdx]
+    soruTargetBtn.Text = "🎯 Target: " .. plist[nextIdx]
 end)
 
--- PANEL APPEARANCE
-local appearanceFrame = Instance.new("Frame")
-appearanceFrame.Name = "AppearanceFrame"
-appearanceFrame.Size = UDim2.new(0, 210, 0, 360)
-appearanceFrame.Position = UDim2.new(0, -220, 0, 10)
-appearanceFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-appearanceFrame.BorderSizePixel = 0
-appearanceFrame.Visible = false
-appearanceFrame.Parent = screenGui
-Instance.new("UICorner", appearanceFrame).CornerRadius = UDim.new(0, 10)
+-- ============================================================
+-- CONTENIDO APPEARANCE
+-- ============================================================
+local appearanceContent = Instance.new("Frame", content)
+appearanceContent.Size = UDim2.new(1, 0, 0, 250)
+appearanceContent.BackgroundTransparency = 1
+appearanceContent.Visible = false
+appearanceContent.ZIndex = 2
 
-local appearanceTitle = Instance.new("TextLabel")
-appearanceTitle.Size = UDim2.new(1, 0, 0, 25)
-appearanceTitle.BackgroundColor3 = Color3.fromRGB(130, 30, 210)
-appearanceTitle.Text = "🎨 APPEARANCE"
-appearanceTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-appearanceTitle.TextSize = 10
-appearanceTitle.Font = Enum.Font.GothamBold
-appearanceTitle.Parent = appearanceFrame
-Instance.new("UICorner", appearanceTitle).CornerRadius = UDim.new(0, 10)
-
-local appearanceScroll = Instance.new("ScrollingFrame")
-appearanceScroll.Size = UDim2.new(1, 0, 1, -30)
-appearanceScroll.Position = UDim2.new(0, 0, 0, 30)
-appearanceScroll.BackgroundTransparency = 1
-appearanceScroll.BorderSizePixel = 0
-appearanceScroll.ScrollBarThickness = 4
-appearanceScroll.ScrollBarImageColor3 = Color3.fromRGB(130, 30, 210)
-appearanceScroll.CanvasSize = UDim2.new(0, 0, 0, 280)
-appearanceScroll.Parent = appearanceFrame
-
-local appearanceLayout = Instance.new("UIListLayout")
-appearanceLayout.Padding = UDim.new(0, 6)
-appearanceLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-appearanceLayout.Parent = appearanceScroll
-
-Instance.new("UIPadding", appearanceScroll).PaddingTop = UDim.new(0, 6)
-
--- TOGGLES DE APPEARANCE
-local function createAppearanceToggle(labelText, getter, setter, yPos)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.9, 0, 0, 20)
-    frame.Position = UDim2.new(0.05, 0, 0, yPos)
-    frame.BackgroundTransparency = 1
-    frame.Parent = appearanceScroll
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0.6, 0, 1, 0)
-    label.Text = labelText
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextSize = 9
-    label.Font = Enum.Font.GothamBold
-    label.BackgroundTransparency = 1
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = frame
-
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 40, 0, 18)
-    btn.Position = UDim2.new(0.75, 0, 0.5, -9)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-    btn.Text = "OFF"
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.TextSize = 8
-    btn.Font = Enum.Font.GothamBold
-    btn.Parent = frame
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-
-    local function updateToggle()
-        if getter() then
-            btn.BackgroundColor3 = Color3.fromRGB(0, 200, 80)
-            btn.Text = "ON"
-        else
-            btn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-            btn.Text = "OFF"
-        end
-    end
-
-    btn.MouseButton1Click:Connect(function()
-        setter(not getter())
-        updateToggle()
-    end)
-
-    btn.TouchTap:Connect(function()
-        setter(not getter())
-        updateToggle()
-    end)
-
-    updateToggle()
-    return btn
-end
-
-createAppearanceToggle("👻 Fake Korblox",
+createToggle(appearanceContent, "👻 Fake Korblox",
     function() return _G.FakeKorbloxEnabled end,
     function(v) 
         _G.FakeKorbloxEnabled = v 
         if v then applyFakeKorblox(player.Character) else removeFakeKorblox(player.Character) end
-    end, 6
+    end, 0
 )
 
-createAppearanceToggle("🕵️ Fake Headless",
+createToggle(appearanceContent, "🕵️ Fake Headless",
     function() return _G.FakeHeadlessEnabled end,
     function(v)
         _G.FakeHeadlessEnabled = v
@@ -1744,234 +1507,168 @@ createAppearanceToggle("🕵️ Fake Headless",
     end, 30
 )
 
-local auraTitle = Instance.new("TextLabel")
-auraTitle.Size = UDim2.new(0.9, 0, 0, 20)
-auraTitle.Position = UDim2.new(0.05, 0, 0, 54)
+local sepAura = Instance.new("Frame", appearanceContent)
+sepAura.Size = UDim2.new(1, 0, 0, 1)
+sepAura.Position = UDim2.new(0, 0, 0, 62)
+sepAura.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+sepAura.BackgroundTransparency = 0.5
+sepAura.BorderSizePixel = 0
+
+local auraTitle = Instance.new("TextLabel", appearanceContent)
+auraTitle.Size = UDim2.new(1, 0, 0, 20)
+auraTitle.Position = UDim2.new(0, 0, 0, 72)
 auraTitle.BackgroundTransparency = 1
 auraTitle.Text = "✨ AURAS VFX ✨"
 auraTitle.TextColor3 = Color3.fromRGB(150, 0, 255)
-auraTitle.TextSize = 9
+auraTitle.TextSize = 10
 auraTitle.Font = Enum.Font.GothamBold
 auraTitle.TextXAlignment = Enum.TextXAlignment.Center
-auraTitle.Parent = appearanceScroll
 
-createAppearanceToggle("🔥 Aura Inferno",
+createToggle(appearanceContent, "🔥 Aura Inferno",
     function() return _G.ActiveAura == "Inferno" end,
     function(v) 
         if v then ApplyAura("Inferno") else ClearAura(); _G.ActiveAura = nil end
-    end, 78
+    end, 97
 )
 
-createAppearanceToggle("⚡ Aura Electric",
+createToggle(appearanceContent, "⚡ Aura Electric",
     function() return _G.ActiveAura == "Electric" end,
     function(v) 
         if v then ApplyAura("Electric") else ClearAura(); _G.ActiveAura = nil end
-    end, 102
+    end, 127
 )
 
-createAppearanceToggle("💜 Aura DarkSpirit",
+createToggle(appearanceContent, "💜 Aura DarkSpirit",
     function() return _G.ActiveAura == "DarkSpirit" end,
     function(v) 
         if v then ApplyAura("DarkSpirit") else ClearAura(); _G.ActiveAura = nil end
-    end, 126
+    end, 157
 )
 
-createAppearanceToggle("💚 Aura Toxic",
+createToggle(appearanceContent, "💚 Aura Toxic",
     function() return _G.ActiveAura == "Toxic" end,
     function(v) 
         if v then ApplyAura("Toxic") else ClearAura(); _G.ActiveAura = nil end
-    end, 150
+    end, 187
 )
 
-createAppearanceToggle("❄️ Aura Frost",
+createToggle(appearanceContent, "❄️ Aura Frost",
     function() return _G.ActiveAura == "Frost" end,
     function(v) 
         if v then ApplyAura("Frost") else ClearAura(); _G.ActiveAura = nil end
-    end, 174
+    end, 217
 )
 
--- PANEL MISC
-local miscFrame = Instance.new("Frame")
-miscFrame.Name = "MiscFrame"
-miscFrame.Size = UDim2.new(0, 210, 0, 360)
-miscFrame.Position = UDim2.new(0, -220, 0, 10)
-miscFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-miscFrame.BorderSizePixel = 0
-miscFrame.Visible = false
-miscFrame.Parent = screenGui
-Instance.new("UICorner", miscFrame).CornerRadius = UDim.new(0, 10)
+-- ============================================================
+-- CONTENIDO MISC
+-- ============================================================
+local miscContent = Instance.new("Frame", content)
+miscContent.Size = UDim2.new(1, 0, 0, 160)
+miscContent.BackgroundTransparency = 1
+miscContent.Visible = false
+miscContent.ZIndex = 2
 
-local miscTitle = Instance.new("TextLabel")
-miscTitle.Size = UDim2.new(1, 0, 0, 25)
-miscTitle.BackgroundColor3 = Color3.fromRGB(0, 140, 220)
-miscTitle.Text = "🎲 MISC"
-miscTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-miscTitle.TextSize = 10
-miscTitle.Font = Enum.Font.GothamBold
-miscTitle.Parent = miscFrame
-Instance.new("UICorner", miscTitle).CornerRadius = UDim.new(0, 10)
-
-local miscScroll = Instance.new("ScrollingFrame")
-miscScroll.Size = UDim2.new(1, 0, 1, -30)
-miscScroll.Position = UDim2.new(0, 0, 0, 30)
-miscScroll.BackgroundTransparency = 1
-miscScroll.BorderSizePixel = 0
-miscScroll.ScrollBarThickness = 4
-miscScroll.ScrollBarImageColor3 = Color3.fromRGB(0, 140, 220)
-miscScroll.CanvasSize = UDim2.new(0, 0, 0, 230)
-miscScroll.Parent = miscFrame
-
-local miscLayout = Instance.new("UIListLayout")
-miscLayout.Padding = UDim.new(0, 6)
-miscLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-miscLayout.Parent = miscScroll
-
-Instance.new("UIPadding", miscScroll).PaddingTop = UDim.new(0, 6)
-
--- TOGGLES DE MISC
-local function createMiscToggle(labelText, getter, setter, yPos)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.9, 0, 0, 20)
-    frame.Position = UDim2.new(0.05, 0, 0, yPos)
-    frame.BackgroundTransparency = 1
-    frame.Parent = miscScroll
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0.6, 0, 1, 0)
-    label.Text = labelText
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextSize = 9
-    label.Font = Enum.Font.GothamBold
-    label.BackgroundTransparency = 1
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Parent = frame
-
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 40, 0, 18)
-    btn.Position = UDim2.new(0.75, 0, 0.5, -9)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-    btn.Text = "OFF"
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.TextSize = 8
-    btn.Font = Enum.Font.GothamBold
-    btn.Parent = frame
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-
-    local function updateToggle()
-        if getter() then
-            btn.BackgroundColor3 = Color3.fromRGB(0, 200, 80)
-            btn.Text = "ON"
-        else
-            btn.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
-            btn.Text = "OFF"
-        end
-    end
-
-    btn.MouseButton1Click:Connect(function()
-        setter(not getter())
-        updateToggle()
-    end)
-
-    btn.TouchTap:Connect(function()
-        setter(not getter())
-        updateToggle()
-    end)
-
-    updateToggle()
-    return btn
-end
-
-createMiscToggle("👁️ Auto Ken",
+createToggle(miscContent, "👁️ Auto Ken",
     function() return _G.AutoKen end,
-    function(v) _G.AutoKen = v end, 6
+    function(v) _G.AutoKen = v end, 0
 )
 
-createMiscToggle("🛡️ Auto Haki",
+createToggle(miscContent, "🛡️ Auto Haki",
     function() return _G.AutoHaki end,
     function(v) _G.AutoHaki = v end, 30
 )
 
-createMiscToggle("👻 Ghost Attack",
+createToggle(miscContent, "👻 Ghost Attack",
     function() return _G.GhostAttack end,
-    function(v) _G.GhostAttack = v end, 54
+    function(v) _G.GhostAttack = v end, 60
 )
 
-createMiscToggle("📊 FPS / Ping Overlay",
+createToggle(miscContent, "📊 FPS / Ping Overlay",
     function() return _G.FPSPingOverlayEnabled end,
-    function(v) _G.FPSPingOverlayEnabled = v end, 78
+    function(v) _G.FPSPingOverlayEnabled = v end, 90
 )
 
 -- ============================================================
 -- NAVEGACIÓN ENTRE PESTAÑAS
 -- ============================================================
-local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+local function switchTab(panel, btn)
+    combatContent.Visible = false
+    soruContent.Visible = false
+    appearanceContent.Visible = false
+    miscContent.Visible = false
+    panel.Visible = true
 
-local function closeSubFrames()
-	for _, frame in ipairs({combatFrame, soruFrame, appearanceFrame, miscFrame}) do
-		if frame.Visible then
-			local t = TweenService:Create(frame, tweenInfo, {Position = UDim2.new(0, -220, 0, 10)})
-			t:Play()
-			t.Completed:Connect(function() frame.Visible = false end)
-		end
-	end
+    btnCombate.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+    btnSoru.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+    btnAppearance.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+    btnMisc.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
 end
 
-toggleBtn.MouseButton1Click:Connect(function()
-	if not mainFrame.Visible then
-		mainFrame.Visible = true
-		TweenService:Create(mainFrame, tweenInfo, {Position = UDim2.new(0, 10, 0, 10)}):Play()
-	else
-		closeSubFrames()
-		local t = TweenService:Create(mainFrame, tweenInfo, {Position = UDim2.new(0, -200, 0, 10)})
-		t:Play()
-		t.Completed:Connect(function() mainFrame.Visible = false end)
-	end
+btnCombate.MouseButton1Click:Connect(function()
+    switchTab(combatContent, btnCombate)
 end)
 
-combatBtn.MouseButton1Click:Connect(function()
-	if not combatFrame.Visible then
-		closeSubFrames()
-		combatFrame.Visible = true
-		TweenService:Create(combatFrame, tweenInfo, {Position = UDim2.new(0, 210, 0, 10)}):Play()
-	else
-		closeSubFrames()
-	end
+btnSoru.MouseButton1Click:Connect(function()
+    switchTab(soruContent, btnSoru)
 end)
 
-soruBtn.MouseButton1Click:Connect(function()
-	if not soruFrame.Visible then
-		closeSubFrames()
-		soruFrame.Visible = true
-		TweenService:Create(soruFrame, tweenInfo, {Position = UDim2.new(0, 210, 0, 10)}):Play()
-	else
-		closeSubFrames()
-	end
+btnAppearance.MouseButton1Click:Connect(function()
+    switchTab(appearanceContent, btnAppearance)
 end)
 
-appearanceBtn.MouseButton1Click:Connect(function()
-	if not appearanceFrame.Visible then
-		closeSubFrames()
-		appearanceFrame.Visible = true
-		TweenService:Create(appearanceFrame, tweenInfo, {Position = UDim2.new(0, 210, 0, 10)}):Play()
-	else
-		closeSubFrames()
-	end
+btnMisc.MouseButton1Click:Connect(function()
+    switchTab(miscContent, btnMisc)
 end)
 
-miscBtn.MouseButton1Click:Connect(function()
-	if not miscFrame.Visible then
-		closeSubFrames()
-		miscFrame.Visible = true
-		TweenService:Create(miscFrame, tweenInfo, {Position = UDim2.new(0, 210, 0, 10)}):Play()
-	else
-		closeSubFrames()
-	end
+btnCombate.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+
+-- ============================================================
+-- BOTÓN FLOTANTE M (ABRIR/CERRAR UI) - ARRASTRABLE
+-- ============================================================
+for _, gui in pairs(playerGui:GetChildren()) do
+    if gui.Name == "MatrixOpenButton" then gui:Destroy() end
+end
+
+local openGui = Instance.new("ScreenGui")
+openGui.Name = "MatrixOpenButton"
+openGui.ResetOnSpawn = false
+openGui.Parent = playerGui
+
+local openBtn = Instance.new("TextButton")
+openBtn.Size = UDim2.new(0, 45, 0, 45)
+openBtn.Position = UDim2.new(0, 15, 0, 15)
+openBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+openBtn.BackgroundTransparency = 0
+openBtn.Text = ""
+openBtn.Visible = true
+openBtn.Active = true
+openBtn.Draggable = true
+openBtn.Parent = openGui
+Instance.new("UICorner", openBtn).CornerRadius = UDim.new(0, 10)
+
+local openStroke = Instance.new("UIStroke", openBtn)
+openStroke.Color = Color3.fromRGB(255, 255, 255)
+openStroke.Thickness = 2
+
+local btnBg = Instance.new("ImageLabel", openBtn)
+btnBg.Size = UDim2.new(1, 0, 1, 0)
+btnBg.Position = UDim2.new(0, 0, 0, 0)
+btnBg.BackgroundTransparency = 1
+btnBg.Image = "rbxassetid://122805690990383"
+btnBg.ScaleType = Enum.ScaleType.Crop
+btnBg.ZIndex = 1
+Instance.new("UICorner", btnBg).CornerRadius = UDim.new(0, 10)
+
+MakeDraggableAndClickable(openBtn, function()
+    mainFrame.Visible = not mainFrame.Visible
 end)
 
 -- ============================================================
 -- INICIALIZACIÓN
 -- ============================================================
-print("✅ MATRIX UI - ESTILO FANTASMITAM HUB")
+print("✅ MATRIX UI COMPLETA - mainFrame INCLUIDO")
 print("📌 Pestañas: COMBATE | SORU | APPEARANCE | MISC")
-print("📌 AIM - M1 - JUMP → TODOS ARRASTRABLES")
-print("📌 Botón X para cerrar TODO el script")
+print("📌 AIM - M1 - JUMP - M → TODOS ARRASTRABLES")
+print("📌 UI principal → FIJA (sin arrastre)")
+print("📌 Fondo negro sólido - 20px desde arriba")
