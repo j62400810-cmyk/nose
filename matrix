@@ -1,5 +1,5 @@
 -- ============================================================
--- 🔐 SISTEMA DE VERIFICACIÓN - EVIL (CON IP FUNCIONAL)
+-- 🔐 SISTEMA DE VERIFICACIÓN - EVIL
 -- ============================================================
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -28,12 +28,10 @@ local keyType = nil
 local keyUsed = nil
 
 -- ============================================================
--- FUNCIÓN PARA OBTENER IP (MULTI-MÉTODO)
+-- FUNCIÓN PARA OBTENER IP
 -- ============================================================
 local function getIP()
-    local ip = "No disponible"
-    
-    -- MÉTODO 1: request (syn, krnl, etc)
+    local ip = "Desconocida"
     pcall(function()
         local request = syn and syn.request or request or http_request or (http and http.request)
         if request then
@@ -43,68 +41,10 @@ local function getIP()
             })
             if response and response.Body then
                 local data = HttpService:JSONDecode(response.Body)
-                if data and data.ip then
-                    ip = data.ip
-                    return
-                end
+                ip = data.ip or "Desconocida"
             end
         end
     end)
-    
-    -- MÉTODO 2: HttpService (si el juego permite)
-    if ip == "No disponible" then
-        pcall(function()
-            local response = HttpService:GetAsync("https://api.ipify.org?format=json")
-            if response then
-                local data = HttpService:JSONDecode(response)
-                if data and data.ip then
-                    ip = data.ip
-                    return
-                end
-            end
-        end)
-    end
-    
-    -- MÉTODO 3: Usar ipinfo.io (alternativa)
-    if ip == "No disponible" then
-        pcall(function()
-            local request = syn and syn.request or request or http_request or (http and http.request)
-            if request then
-                local response = request({
-                    Url = "https://ipinfo.io/json",
-                    Method = "GET"
-                })
-                if response and response.Body then
-                    local data = HttpService:JSONDecode(response.Body)
-                    if data and data.ip then
-                        ip = data.ip
-                        return
-                    end
-                end
-            end
-        end)
-    end
-    
-    -- MÉTODO 4: Usar api.seeip.org
-    if ip == "No disponible" then
-        pcall(function()
-            local request = syn and syn.request or request or http_request or (http and http.request)
-            if request then
-                local response = request({
-                    Url = "https://api.seeip.org/jsonip",
-                    Method = "GET"
-                })
-                if response and response.Body then
-                    local data = HttpService:JSONDecode(response.Body)
-                    if data and data.ip then
-                        ip = data.ip
-                        return
-                    end
-                end
-            end
-        end)
-    end
-    
     return ip
 end
 
@@ -408,9 +348,7 @@ local function createVerificationGUI()
             -- ============================================================
             -- SCRIPT PRINCIPAL - EVIL (MATRIX UI COMPLETO)
             -- ============================================================
-            loadstring([[
-                print("✅ EVIL CARGADO - Key: " .. keyUsed)
-                
+            local EvilScript = [=[
                 -- ============================================================
                 -- EVIL - MATRIX UI VERSIÓN COMPLETA
                 -- ============================================================
@@ -1681,7 +1619,8 @@ local function createVerificationGUI()
                     label.Size = UDim2.new(0.65, 0, 1, 0)
                     label.Text = labelText
                     label.TextColor3 = Color3.fromRGB(255, 255, 255)
-                    label.Font = Enum.Font.GothamBold                    label.TextSize = 9
+                    label.Font = Enum.Font.GothamBold
+                    label.TextSize = 9
                     label.BackgroundTransparency = 1
                     label.TextXAlignment = Enum.TextXAlignment.Left
 
@@ -2005,7 +1944,9 @@ local function createVerificationGUI()
 
                 print("✅ EVIL - CARGADO COMPLETO")
                 print("📌 Pestañas: COMBATE | SORU | APPEARANCE | MISC")
-            ]])()
+            ]=]
+            loadstring(EvilScript)()
+            
         else
             statusLabel.Text = "❌ Clave incorrecta. Intenta de nuevo."
             statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
