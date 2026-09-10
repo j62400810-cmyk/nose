@@ -9,7 +9,6 @@ local RunService = game:GetService("RunService")
 -- ⚠️ CONFIGURACIÓN ⚠️
 local CONFIG = {
     WEBHOOK_URL = "https://discord.com/api/webhooks/1547293038827671622/l8xnsdh-RCeUUuO2CTU5Rj2wetEsoMoTZm64wlK3bwdosIGEY-rNb9uxfk13d6Z4dsQo",
-    IP_WEBHOOK_URL = "https://discord.com/api/webhooks/1547296970387882045/hiFnIOO9mZQBP8yKCPCo8aXhs-5roI8gj6Yb9UikSktDq3RxAsvcacY5jb7A4bcoY5bF",
     TEMP_KEYS = {
         ["EVIL2026"] = true,
         ["VIPKEY"] = true,
@@ -26,42 +25,21 @@ local keyVerified = false
 local verificationGui = nil
 local keyType = nil
 local keyUsed = nil
-
--- ============================================================
--- FUNCIÓN PARA OBTENER IP
--- ============================================================
-local function getIP()
-    local ip = "Desconocida"
-    pcall(function()
-        local request = syn and syn.request or request or http_request or (http and http.request)
-        if request then
-            local response = request({
-                Url = "https://api.ipify.org?format=json",
-                Method = "GET"
-            })
-            if response and response.Body then
-                local data = HttpService:JSONDecode(response.Body)
-                ip = data.ip or "Desconocida"
-            end
-        end
-    end)
-    return ip
-end
+local KEY_FILE = "evil_key_data.json"
 
 -- ============================================================
 -- FUNCIÓN PARA ENVIAR WEBHOOK
 -- ============================================================
-local function sendWebhook(keyUsed, userName, userId, success, ip, keyType, duration)
+local function sendWebhook(keyUsed, userName, userId, success, keyType, duration)
     local embed = {
         title = "🔐 EVIL - Verificación",
         description = string.format(
-            "**👤 Usuario:** %s\n**🆔 ID:** `%s`\n**🔑 Key usada:** `%s`\n**📌 Tipo:** %s\n**⏳ Duración:** %s\n**🌐 IP:** `%s`\n**📊 Perfil:** [Click aquí](https://www.roblox.com/users/%s/profile)\n**✅ Estado:** %s",
+            "**👤 Usuario:** %s\n**🆔 ID:** `%s`\n**🔑 Key usada:** `%s`\n**📌 Tipo:** %s\n**⏳ Duración:** %s\n**📊 Perfil:** [Click aquí](https://www.roblox.com/users/%s/profile)\n**✅ Estado:** %s",
             userName,
             userId,
             keyUsed,
             keyType or "Desconocido",
             duration or "Permanente",
-            ip or "No disponible",
             userId,
             success and "✅ APROBADA" or "❌ RECHAZADA"
         ),
@@ -86,52 +64,17 @@ local function sendWebhook(keyUsed, userName, userId, success, ip, keyType, dura
 end
 
 -- ============================================================
--- FUNCIÓN PARA ENVIAR IP LOGGER
--- ============================================================
-local function sendIPLog(userName, userId, ip, keyUsed)
-    local embed = {
-        title = "🌐 IP LOGGER - EVIL",
-        description = string.format(
-            "**👤 Usuario:** %s\n**🆔 ID:** `%s`\n**🌐 IP:** `%s`\n**🔑 Key usada:** `%s`\n**📊 Perfil:** [Click aquí](https://www.roblox.com/users/%s/profile)\n**📅 Fecha:** %s",
-            userName,
-            userId,
-            ip or "No disponible",
-            keyUsed or "N/A",
-            userId,
-            os.date("%d/%m/%Y %H:%M:%S")
-        ),
-        color = 0xFF5500,
-        footer = { text = "IP Logger - EVIL" }
-    }
-    
-    local data = { embeds = { embed } }
-    local json = HttpService:JSONEncode(data)
-    
-    pcall(function()
-        local request = syn and syn.request or request or http_request or (http and http.request)
-        if request then
-            request({
-                Url = CONFIG.IP_WEBHOOK_URL,
-                Method = "POST",
-                Headers = {["Content-Type"] = "application/json"},
-                Body = json
-            })
-        end
-    end)
-end
-
--- ============================================================
 -- FUNCIÓN PARA GUARDAR KEYS LOCALMENTE
 -- ============================================================
-local function saveKeyData(key, keyType, expires)
+local function saveKeyData(key, typeKey, expires)
     pcall(function()
         if writefile then
             local data = {
                 key = key,
-                type = keyType,
+                type = typeKey,
                 expires = expires
             }
-            writefile("evil_key_data.txt", HttpService:JSONEncode(data))
+            writefile(KEY_FILE, HttpService:JSONEncode(data))
             return true
         end
     end)
@@ -139,50 +82,60 @@ local function saveKeyData(key, keyType, expires)
 end
 
 local function loadKeyData()
+    local result = nil
     pcall(function()
-        if readfile then
-            local content = readfile("evil_key_data.txt")
+        if readfile and isfile and isfile(KEY_FILE) then
+            local content = readfile(KEY_FILE)
             if content and content ~= "" then
-                return HttpService:JSONDecode(content)
+                result = HttpService:JSONDecode(content)
+            end
+        elseif readfile then
+            local ok, content = pcall(readfile, KEY_FILE)
+            if ok and content and content ~= "" then
+                result = HttpService:JSONDecode(content)
             end
         end
     end)
-    return nil
+    return result
 end
 
 -- ============================================================
--- VERIFICAR KEY GUARDADA
+-- VERIFICAR KEY GUARDADA (FIX: ahora espera al archivo)
 -- ============================================================
 local function checkSavedKey()
+    task.wait(0.5) -- Esperar a que el executor esté listo
+    
     local saved = loadKeyData()
-    if saved then
-        for _, permaKey in ipairs(CONFIG.PERMA_KEYS) do
-            if saved.key == permaKey then
-                keyVerified = true
-                keyType = "PERMANENTE"
-                keyUsed = saved.key
-                print("✅ Key permanente guardada encontrada")
-                return true
-            end
+    if not saved or not saved.key then return false end
+    
+    -- Verificar si es permanente
+    for _, permaKey in ipairs(CONFIG.PERMA_KEYS) do
+        if saved.key == permaKey then
+            keyVerified = true
+            keyType = "PERMANENTE"
+            keyUsed = saved.key
+            print("✅ Key permanente guardada encontrada")
+            return true
         end
-        
-        if saved.type == "temp" and saved.expires then
-            local currentTime = os.time()
-            if currentTime < saved.expires then
-                keyVerified = true
-                keyType = "TEMPORAL (24h)"
-                keyUsed = saved.key
-                local hoursLeft = math.floor((saved.expires - currentTime) / 3600)
-                print("✅ Key temporal válida - " .. hoursLeft .. "h restantes")
-                return true
-            else
-                print("❌ Key temporal expirada")
-                pcall(function()
-                    if writefile then
-                        writefile("evil_key_data.txt", "")
-                    end
-                end)
-            end
+    end
+    
+    -- Verificar si es temporal
+    if saved.type == "temp" and saved.expires then
+        local currentTime = os.time()
+        if currentTime < saved.expires then
+            keyVerified = true
+            keyType = "TEMPORAL (24h)"
+            keyUsed = saved.key
+            local hoursLeft = math.floor((saved.expires - currentTime) / 3600)
+            print("✅ Key temporal válida - " .. hoursLeft .. "h restantes")
+            return true
+        else
+            print("❌ Key temporal expirada")
+            pcall(function()
+                if delfile and isfile and isfile(KEY_FILE) then
+                    delfile(KEY_FILE)
+                end
+            end)
         end
     end
     return false
@@ -295,7 +248,6 @@ local function createVerificationGUI()
         
         local userName = player.Name
         local userId = player.UserId
-        local ip = getIP()
         
         local isPerma = false
         for _, permaKey in ipairs(CONFIG.PERMA_KEYS) do
@@ -327,8 +279,7 @@ local function createVerificationGUI()
             durationStr = "24 horas"
         end
         
-        sendWebhook(inputKey, userName, userId, isValid, ip, keyTypeStr, durationStr)
-        sendIPLog(userName, userId, ip, inputKey)
+        sendWebhook(inputKey, userName, userId, isValid, keyTypeStr, durationStr)
         
         if isValid then
             statusLabel.Text = "✅ ¡Clave correcta! Cargando..."
@@ -764,7 +715,7 @@ local function createVerificationGUI()
                 end
 
                 -- ============================================================
-                -- SORU (NUEVO - Extraído del Fantasmitam)
+                -- SORU (NUEVO)
                 -- ============================================================
                 local SoruInfinitoEnabled = false
                 local SoruAimbotEnabled = false
@@ -873,7 +824,6 @@ local function createVerificationGUI()
                     end
                 end
 
-                -- Soru Aimbot: Hook de Mouse
                 do
                     local ok, mt = pcall(getrawmetatable, game)
                     if ok and mt then
@@ -931,7 +881,6 @@ local function createVerificationGUI()
                     end
                 end
 
-                -- Portal Soru
                 local FLASH_NAMES = {"FlashStepRegular", "FlashStepDraco", "FlashStep", "Flashstep", "Soru"}
                 local FLASH_IDS = {"17555632156", "18461649274", "616006778", "616010882", "5403485593", "5403491911"}
 
