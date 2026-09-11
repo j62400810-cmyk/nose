@@ -1,5 +1,5 @@
 -- ============================================================
--- EVIL - MATRIX UI VERSIÓN COMPLETA (SORU NUEVO)
+-- EVIL - MATRIX UI VERSIÓN COMPLETA (CON GLITCH)
 -- ============================================================
 local player = game:GetService("Players").LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
+local camera = workspace.CurrentCamera
 
 -- ============================================================
 -- VARIABLES GLOBALES
@@ -21,6 +22,7 @@ _G.G_DragonGunM1 = false
 _G.G_AttackMobs = true
 _G.G_AttackPlayers = true
 _G.SuperJumpActive = false
+_G.SanguineActive = false
 
 local SilentAimPlayersEnabled = false
 local SilentAimNPCsEnabled = false
@@ -44,6 +46,13 @@ _G.GhostAttack = false
 _G.FPSPingOverlayEnabled = false
 _G.currentFPS = 0
 _G.currentPing = 0
+
+-- ============================================================
+-- SANGUINE CONFIG
+-- ============================================================
+local SANGUINE_FORCE = 500
+local SANGUINE_DURATION = 0.30
+local isBoostActive = false
 
 -- ============================================================
 -- FUNCIÓN DE ARRASTRE PARA BOTONES FLOTANTES
@@ -335,7 +344,7 @@ task.spawn(function()
 end)
 
 -- ============================================================
--- JUMP BUTTON
+-- JUMP BUTTON (50x40 IGUAL QUE SANGUINE)
 -- ============================================================
 local jumpFloatGui, jumpFloatBtn
 
@@ -409,6 +418,85 @@ function DestroyJumpFloatingButton()
         jumpFloatGui:Destroy()
         jumpFloatGui = nil
         jumpFloatBtn = nil
+    end
+end
+
+-- ============================================================
+-- SANGUINE Z BUTTON (50x40 IGUAL QUE JUMP)
+-- ============================================================
+local sanguineFloatGui, sanguineFloatBtn
+
+local function executeSanguineBoost()
+    if isBoostActive then return end
+    local char = player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hum = char and char:FindFirstChild("Humanoid")
+    if not hrp or not hum then return end
+    
+    isBoostActive = true
+    
+    local dir = camera.CFrame.LookVector
+    
+    hum.PlatformStand = true
+    
+    local att = Instance.new("Attachment", hrp)
+    local lv = Instance.new("LinearVelocity", hrp)
+    lv.MaxForce = 9999999
+    lv.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
+    lv.VectorVelocity = dir * SANGUINE_FORCE
+    lv.Attachment0 = att
+    
+    task.delay(SANGUINE_DURATION, function()
+        if lv then lv:Destroy() end
+        if att then att:Destroy() end
+        if hum then hum.PlatformStand = false end
+        isBoostActive = false
+    end)
+end
+
+function CreateSanguineFloatingButton()
+    for _, gui in pairs(playerGui:GetChildren()) do
+        if gui.Name == "SanguineZ_Floating" then gui:Destroy() end
+    end
+
+    sanguineFloatGui = Instance.new("ScreenGui")
+    sanguineFloatGui.Name = "SanguineZ_Floating"
+    sanguineFloatGui.ResetOnSpawn = false
+    sanguineFloatGui.Parent = playerGui
+
+    sanguineFloatBtn = Instance.new("TextButton")
+    sanguineFloatBtn.Name = "SanguineZFloat"
+    sanguineFloatBtn.Size = UDim2.new(0, 50, 0, 40)
+    sanguineFloatBtn.Position = UDim2.new(0.85, 0, 0.6, 0)
+    sanguineFloatBtn.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+    sanguineFloatBtn.Text = "🩸 Z"
+    sanguineFloatBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    sanguineFloatBtn.TextSize = 11
+    sanguineFloatBtn.Font = Enum.Font.GothamBold
+    sanguineFloatBtn.Active = true
+    sanguineFloatBtn.Draggable = true
+    sanguineFloatBtn.Visible = true
+    sanguineFloatBtn.Parent = sanguineFloatGui
+
+    Instance.new("UICorner", sanguineFloatBtn).CornerRadius = UDim.new(0, 8)
+
+    local sanguineStroke = Instance.new("UIStroke")
+    sanguineStroke.Color = Color3.fromRGB(255, 100, 100)
+    sanguineStroke.Thickness = 1.5
+    sanguineStroke.Parent = sanguineFloatBtn
+
+    MakeDraggableAndClickable(sanguineFloatBtn, function()
+        if _G.SanguineActive then
+            executeSanguineBoost()
+        end
+    end)
+end
+
+function DestroySanguineFloatingButton()
+    if sanguineFloatGui then
+        sanguineFloatGui:Destroy()
+        sanguineFloatGui = nil
+        sanguineFloatBtn = nil
     end
 end
 
@@ -1198,7 +1286,7 @@ sep.BorderSizePixel = 0
 sep.ZIndex = 2
 
 -- ============================================================
--- PESTAÑAS
+-- PESTAÑAS (AGREGADA GLITCH)
 -- ============================================================
 local sidebar = Instance.new("Frame", mainFrame)
 sidebar.Size = UDim2.new(0, 85, 1, -50)
@@ -1218,9 +1306,21 @@ btnCombate.TextSize = 9
 btnCombate.ZIndex = 2
 Instance.new("UICorner", btnCombate).CornerRadius = UDim.new(0, 6)
 
+local btnGlitch = Instance.new("TextButton", sidebar)
+btnGlitch.Size = UDim2.new(1, -5, 0, 28)
+btnGlitch.Position = UDim2.new(0, 2, 0, 37)
+btnGlitch.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+btnGlitch.BackgroundTransparency = 0.2
+btnGlitch.Text = "GLITCH"
+btnGlitch.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnGlitch.Font = Enum.Font.GothamBold
+btnGlitch.TextSize = 9
+btnGlitch.ZIndex = 2
+Instance.new("UICorner", btnGlitch).CornerRadius = UDim.new(0, 6)
+
 local btnSoru = Instance.new("TextButton", sidebar)
 btnSoru.Size = UDim2.new(1, -5, 0, 28)
-btnSoru.Position = UDim2.new(0, 2, 0, 37)
+btnSoru.Position = UDim2.new(0, 2, 0, 69)
 btnSoru.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
 btnSoru.BackgroundTransparency = 0.2
 btnSoru.Text = "SORU"
@@ -1232,7 +1332,7 @@ Instance.new("UICorner", btnSoru).CornerRadius = UDim.new(0, 6)
 
 local btnAppearance = Instance.new("TextButton", sidebar)
 btnAppearance.Size = UDim2.new(1, -5, 0, 28)
-btnAppearance.Position = UDim2.new(0, 2, 0, 69)
+btnAppearance.Position = UDim2.new(0, 2, 0, 101)
 btnAppearance.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
 btnAppearance.BackgroundTransparency = 0.2
 btnAppearance.Text = "APPEARANCE"
@@ -1244,7 +1344,7 @@ Instance.new("UICorner", btnAppearance).CornerRadius = UDim.new(0, 6)
 
 local btnMisc = Instance.new("TextButton", sidebar)
 btnMisc.Size = UDim2.new(1, -5, 0, 28)
-btnMisc.Position = UDim2.new(0, 2, 0, 101)
+btnMisc.Position = UDim2.new(0, 2, 0, 133)
 btnMisc.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
 btnMisc.BackgroundTransparency = 0.2
 btnMisc.Text = "MISC"
@@ -1326,10 +1426,10 @@ local function createToggle(parent, labelText, getter, setter, yPos)
 end
 
 -- ============================================================
--- CONTENIDO COMBATE
+-- CONTENIDO COMBATE (SIN JUMP)
 -- ============================================================
 local combatContent = Instance.new("Frame", content)
-combatContent.Size = UDim2.new(1, 0, 0, 160)
+combatContent.Size = UDim2.new(1, 0, 0, 130)
 combatContent.BackgroundTransparency = 1
 combatContent.ZIndex = 2
 
@@ -1366,12 +1466,29 @@ createToggle(combatContent, "Auto M1",
     end, 98
 )
 
-createToggle(combatContent, "⬆️ Jump Button",
+-- ============================================================
+-- CONTENIDO GLITCH (JUMP + SANGUINE)
+-- ============================================================
+local glitchContent = Instance.new("Frame", content)
+glitchContent.Size = UDim2.new(1, 0, 0, 100)
+glitchContent.BackgroundTransparency = 1
+glitchContent.Visible = false
+glitchContent.ZIndex = 2
+
+createToggle(glitchContent, "⬆️ Jump Button",
     function() return _G.SuperJumpActive end,
     function(v)
         _G.SuperJumpActive = v
         if v then CreateJumpFloatingButton() else DestroyJumpFloatingButton() end
-    end, 128
+    end, 0
+)
+
+createToggle(glitchContent, "🩸 Sanguine Z",
+    function() return _G.SanguineActive end,
+    function(v)
+        _G.SanguineActive = v
+        if v then CreateSanguineFloatingButton() else DestroySanguineFloatingButton() end
+    end, 30
 )
 
 -- ============================================================
@@ -1537,12 +1654,14 @@ createToggle(miscContent, "📊 FPS / Ping Overlay",
 -- ============================================================
 local function switchTab(panel, btn)
     combatContent.Visible = false
+    glitchContent.Visible = false
     soruContent.Visible = false
     appearanceContent.Visible = false
     miscContent.Visible = false
     panel.Visible = true
 
     btnCombate.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+    btnGlitch.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
     btnSoru.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
     btnAppearance.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
     btnMisc.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
@@ -1551,6 +1670,10 @@ end
 
 btnCombate.MouseButton1Click:Connect(function()
     switchTab(combatContent, btnCombate)
+end)
+
+btnGlitch.MouseButton1Click:Connect(function()
+    switchTab(glitchContent, btnGlitch)
 end)
 
 btnSoru.MouseButton1Click:Connect(function()
@@ -1608,5 +1731,5 @@ MakeDraggableAndClickable(openBtn, function()
     mainFrame.Visible = not mainFrame.Visible
 end)
 
-print("✅ EVIL - CARGADO COMPLETO (SIN KEY)")
-print("📌 Pestañas: COMBATE | SORU | APPEARANCE | MISC")
+print("✅ EVIL - CARGADO COMPLETO (CON GLITCH)")
+print("📌 Pestañas: COMBATE | GLITCH | SORU | APPEARANCE | MISC")
